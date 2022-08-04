@@ -10,7 +10,7 @@ laser = pygame.transform.scale(laser, (20, 30))
 playerModel = pygame.transform.scale(playerModel, (100, 150))
 enemyModel = pygame.image.load("Game\enemy.png")
 enemyModel = pygame.transform.scale(enemyModel, (50, 50))
-x = 300
+x = 300 
 y = 440
 
 
@@ -26,7 +26,7 @@ last_enemy_spawn = 0
 class Enemy:
     def __init__(self):
         self.enemy_x  = randint(1,12)*50
-        self.enemy_y  = 0
+        self.enemy_y  = -50
         self.id = addEnemyId()
         enemy_list.append(self)
 
@@ -36,8 +36,8 @@ class MyBullet:
         self.bullet_y = y
 #endregion
 
-
 #region Methods
+
 def addEnemyId():
     global enemy_id
     enemy_id +=1
@@ -61,12 +61,13 @@ def spawnEnemy():
 
 #endregion
 
+
 run = True
 while run:
-    pygame.time.Clock().tick(60)
+    pygame.time.Clock().tick(100)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            run = False                      
 
     keys = pygame.key.get_pressed()
     #time from last shot
@@ -76,20 +77,26 @@ while run:
     spawnInterval = (pygame.time.get_ticks() - last_enemy_spawn) / 10000
 
     #move bullets
-    if bullet_shot:
-        for b in bullet_list:
-            b.bullet_y -= 10
-            #bullet reaches top
-            if b.bullet_y == 0:
-                bullet_list.remove(b)
-            #collision
-            for e in enemy_list:
-                if b.bullet_y <= e.enemy_y:
-                    enemy_list.remove(e)
+    try:
+        if bullet_shot:
+            for b in bullet_list:
+                b.bullet_y -= 10
+                #bullet reaches top
+                if b.bullet_y == -100:
                     bullet_list.remove(b)
-        #no more bullets
-        if len(bullet_list) == 0:
-            bullet_shot = 0
+                #collision
+                for e in enemy_list:
+                    if b.bullet_y <= e.enemy_y and b.bullet_x > e.enemy_x and b.bullet_x < e.enemy_x + 40:
+                        enemy_list.remove(e)
+                        bullet_list.remove(b) 
+                        break    
+    except ValueError:
+        continue
+    #no more bullets
+    if len(bullet_list) == 0:
+        bullet_shot = 0
+        
+        
     
     #move enemies
     for e in enemy_list:
@@ -98,20 +105,20 @@ while run:
             enemy_list.remove(e)
 
     #spawn enemies
-    if spawnInterval > 0.6:
+    if spawnInterval > 0.1:
         spawnEnemy()
 
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_RIGHT] and x < 700:
         x += 10
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] and x > 0:
         x -= 10
     if keys[pygame.K_SPACE] and interval > 0.15:
         shot()
 
 
+
     player = pygame.rect.Rect(x, y, 100, 100)
     window.blit(bg, (0, 0))
-    
     window.blit(playerModel, (player.x, player.y))
     # pygame.draw.rect(window, (20, 200, 20), player)
     #draw bullets
@@ -125,6 +132,13 @@ while run:
     pygame.display.update()
 
 
+def mainMenu():
+    pygame.display.set_caption("StarShooter")
+
+    mouse_pos = pygame.mouse.get_pos()
+
+    title_text = "STAR SHOOTER"
+    title_rect = title_text.get 
 
 
 
